@@ -1,56 +1,45 @@
-import { useState, useCallback } from "react";
+import { useRef } from "react";
 import {
   ReactFlow,
-  type Node,
-  type Edge,
-  type Connection,
-  useNodesState,
-  useEdgesState,
-  addEdge,
   MiniMap,
   Controls,
   Background,
   BackgroundVariant,
-  // addEdge,
 } from "@xyflow/react";
-import { ulid } from "ulid";
 
-const initialNodes: Node[] = [
-  {
-    id: ulid(),
-    position: { x: 50, y: 50 },
-    data: { label: "1" },
-  },
-  { id: ulid(), position: { x: 50, y: 200 }, data: { label: "2" } },
-];
-
-const initialEdges: Edge[] = [
-  { id: ulid(), source: initialNodes[0].id, target: initialNodes[1].id },
-];
+import { useFlow } from "@/hooks/useFlow";
+import { useLoadFlow } from "@/hooks/useLoadFlow";
+import { nodeTypes, edgeTypes } from "@components/Types";
 
 import "@xyflow/react/dist/style.css";
 
 function App() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const { nodes: initialNodes, edges: initialEdges } = useLoadFlow("1");
+  const reactFlowWrapper = useRef(null);
 
-  const onConnect = useCallback(
-    (params: Connection) => {
-      console.log("----- params", params);
-      setEdges((edges) => addEdge(params, edges));
-    },
-    [setEdges],
-  );
+  const {
+    nodes,
+    onNodesChange,
+    edges,
+    onEdgesChange,
+    onConnect,
+    onNodesDelete,
+  } = useFlow(initialNodes, initialEdges, reactFlowWrapper);
 
   return (
-    <div className="size-full">
+    <div className="size-full dndflow" ref={reactFlowWrapper}>
       <ReactFlow
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        snapToGrid={true}
+        onNodesDelete={onNodesDelete}
+        snapToGrid={false}
+        colorMode="light"
+        fitView
       >
         <Controls />
         <MiniMap />
