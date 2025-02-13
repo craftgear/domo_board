@@ -12,19 +12,29 @@ type FlowId = Flow["id"];
 const initialNodes: Node[] = [
   {
     id: ulid(),
-    position: { x: 50, y: 50 },
-    data: { label: "1" },
+    position: { x: 0, y: 225 },
+    data: {
+      content: "Todo一覧を表示したああああああああああああああああ",
+      isEditing: false,
+    },
+    type: "EventNode",
   },
-  { id: ulid(), position: { x: 50, y: 300 }, data: { label: "2" } },
-];
-
-const initialEdges: Edge[] = [
   {
     id: ulid(),
-    source: initialNodes[0].id,
-    target: initialNodes[1].id,
+    position: { x: 250, y: 150 },
+    data: { content: "2" },
+    type: "EventNode",
+  },
+  {
+    id: ulid(),
+    position: { x: 250, y: 300 },
+    data: { content: "3" },
+
+    type: "EventNode",
   },
 ];
+
+const initialEdges: Edge[] = [];
 
 export const useLoadFlow = (id: string): Flow => {
   if (id === "1") {

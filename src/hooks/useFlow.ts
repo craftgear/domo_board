@@ -8,6 +8,7 @@ import {
   getOutgoers,
   getIncomers,
   getConnectedEdges,
+  MarkerType,
   // reconnectEdge,
 } from "@xyflow/react";
 import type { Node, Edge, Connection } from "@xyflow/react";
@@ -15,16 +16,40 @@ import type { Node, Edge, Connection } from "@xyflow/react";
 export const useFlow = (
   initialNodes: Node[],
   initialEdges: Edge[],
-  wrapper: Ref<HTMLDivElement>,
+  reactFlowWrapper: Ref<HTMLDivElement>,
 ) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { screenToFlowPosition, getIntersectingNodes } = useReactFlow();
+  const { setNodes, setEdges, screenToFlowPosition, getIntersectingNodes } =
+    useReactFlow();
+  const updateNodeContent = useCallback(
+    (id: string, newContent: string) => {
+      setNodes((nodes) => {
+        return nodes.map((node) => {
+          if (node.id === id) {
+            return { ...node, data: { ...node.data, content: newContent } };
+          }
+          return node;
+        });
+      });
+    },
+    [setNodes],
+  );
+
+  const [nodes, _setNodes, onNodesChange] = useNodesState(
+    initialNodes.map((node) => ({
+      ...node,
+      data: { ...node.data, updateNodeContent },
+    })),
+  );
+  const [edges, _setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
     (params: Connection) => {
-      // console.log("----- params", params);
-      setEdges((edges) => addEdge(params, edges));
+      setEdges((edges) =>
+        addEdge(
+          { ...params, markerEnd: { type: MarkerType.ArrowClosed } },
+          edges,
+        ),
+      );
     },
     [setEdges],
   );

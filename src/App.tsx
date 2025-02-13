@@ -9,9 +9,7 @@ import {
 
 import { useFlow } from "@/hooks/useFlow";
 import { useLoadFlow } from "@/hooks/useLoadFlow";
-import { nodeTypes, edgeTypes } from "@components/Types";
-
-import "@xyflow/react/dist/style.css";
+import { nodeTypes, edgeTypes } from "@/components/Types";
 
 function App() {
   const { nodes: initialNodes, edges: initialEdges } = useLoadFlow("1");
@@ -40,9 +38,16 @@ function App() {
         snapToGrid={false}
         colorMode="light"
         fitView
+        onKeyDown={(e) => {
+          console.log("----- nodes", nodes);
+          if (e.code === "F2") {
+            console.log("----- e.code", e.code);
+            // TODO: F2が押されたときにアクティブなノードを編集状態にする
+          }
+        }}
       >
         <Controls />
-        <MiniMap />
+        <MiniMap pannable zoomable />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
       </ReactFlow>
     </div>
