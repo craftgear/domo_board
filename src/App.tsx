@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import {
   ReactFlow,
   MiniMap,
@@ -10,10 +10,16 @@ import {
 import { useFlow } from "@/hooks/useFlow";
 import { useLoadFlow } from "@/hooks/useLoadFlow";
 import { nodeTypes, edgeTypes } from "@/components/Types";
+import { Logo } from "@/components/Logo";
 
 function App() {
   const { nodes: initialNodes, edges: initialEdges } = useLoadFlow("1");
-  const reactFlowWrapper = useRef(null);
+
+  const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    reactFlowWrapper.current?.focus();
+  }, []);
 
   const {
     nodes,
@@ -22,10 +28,16 @@ function App() {
     onEdgesChange,
     onConnect,
     onNodesDelete,
+    onKeyDown,
   } = useFlow(initialNodes, initialEdges, reactFlowWrapper);
 
   return (
-    <div className="size-full dndflow" ref={reactFlowWrapper}>
+    <div
+      className="size-full "
+      ref={reactFlowWrapper}
+      tabIndex={0}
+      onKeyDown={onKeyDown}
+    >
       <ReactFlow
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
@@ -38,14 +50,8 @@ function App() {
         snapToGrid={false}
         colorMode="light"
         fitView
-        onKeyDown={(e) => {
-          console.log("----- nodes", nodes);
-          if (e.code === "F2") {
-            console.log("----- e.code", e.code);
-            // TODO: F2が押されたときにアクティブなノードを編集状態にする
-          }
-        }}
       >
+        <Logo />
         <Controls />
         <MiniMap pannable zoomable />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
