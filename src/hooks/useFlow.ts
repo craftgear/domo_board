@@ -1,4 +1,5 @@
-import { useCallback, type Ref, type KeyboardEventHandler } from "react";
+import { useCallback } from "react";
+import type { Ref } from "react";
 import { ulid } from "ulid";
 import { useUpdateNodeContent } from "./useUpdateNodeContent";
 import { useHotkeys } from "./useHotkeys";
@@ -13,6 +14,7 @@ import {
   getConnectedEdges,
   MarkerType,
   // reconnectEdge,
+  useStoreApi,
 } from "@xyflow/react";
 import type { Node, Edge, Connection, GeneralHelpers } from "@xyflow/react";
 
@@ -27,7 +29,6 @@ export const useFlow = (
     setNodes,
     updateNodeData,
     setEdges,
-
     screenToFlowPosition,
     getIntersectingNodes,
   } = useReactFlow();
@@ -35,12 +36,15 @@ export const useFlow = (
   const updateNodeContent = useUpdateNodeContent(updateNodeData);
   const [nodeIdInEditing] = useNodeIdInEditing();
 
+  const store = useStoreApi();
+  const { addSelectedNodes } = store.getState();
   const addNewNode = useCallback(
-    (type: string, content: string, x: number, y: number) => {
+    (type: string, content: string, x: number, y: number, tabIndex: number) => {
+      const newNodeId = ulid();
       setNodes((nodes) => [
         ...nodes,
         {
-          id: ulid(),
+          id: newNodeId,
           type,
           position: {
             x,
@@ -49,22 +53,24 @@ export const useFlow = (
           data: {
             content,
             updateNodeContent,
+            tabIndex,
           },
         },
       ]);
+      setTimeout(() => addSelectedNodes([newNodeId]), 0);
     },
-    [updateNodeContent, setNodes],
+    [updateNodeContent, setNodes, addSelectedNodes],
   );
 
-  const hotkeys = useHotkeys(addNewNode, !!nodeIdInEditing);
-
   const [nodes, _setNodes, onNodesChange] = useNodesState(
-    initialNodes.map((node) => ({
+    initialNodes.map((node, index) => ({
       ...node,
-      data: { ...node.data, updateNodeContent },
+      data: { ...node.data, updateNodeContent, tabIndex: index + 1 },
     })),
   );
   const [edges, _setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const hotkeys = useHotkeys(addNewNode, !!nodeIdInEditing, nodes);
 
   const onConnect = useCallback(
     (params: Connection) => {

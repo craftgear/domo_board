@@ -13,15 +13,17 @@ type Props = {
   data: {
     content: string;
     updateNodeContent: (nodeId: string, label: string) => void;
+    tabIndex: number;
   };
 } & NodeProps;
 
 export const EventNode = ({
   id,
   selected,
-  data: { content, updateNodeContent },
+  data: { content, updateNodeContent, tabIndex },
   // ...rest
 }: Props) => {
+  console.log(content, selected);
   const ref = useRef<HTMLTextAreaElement | null>(null);
   const divRef = useRef<HTMLDivElement | null>(null);
   const [isEdit, setIsEdit] = useState(false);
@@ -38,10 +40,9 @@ export const EventNode = ({
   }, [id, setIsEdit, setNodeIdInEditing]);
 
   const classes = classNames(
-    "w-24 h-24 p-1 relative transition duration-50 ",
+    "w-24 h-24 p-1 relative transition duration-50 break-all",
     { "shadow-md bg-orange-300 ": !selected },
-    { "shadow-lg bg-orange-200": selected },
-    "focus:ring-2 focus:ring-orange-300 focus:outline-none",
+    { "shadow-lg bg-orange-200 ring-2 ring-orange-300 outline-none": selected },
   );
 
   const onKeyDown: KeyboardEventHandler<HTMLDivElement> = useCallback(
@@ -64,13 +65,12 @@ export const EventNode = ({
     },
     [isEdit, handleExitEdit, handleEditContent],
   );
-  // FIXME: tabIndexをインクリメントにする
+
+  // NOTE: tabIndexを追加すると、テキスト編集状態になったときtext inputのonBlurが自動で呼ばれて編集不可になってしまう、要調査
   return (
     <div
       ref={divRef}
       className={classes}
-      tabIndex={0}
-      role="button"
       onDoubleClick={handleEditContent}
       onClick={() => divRef.current?.focus()}
       onFocus={() => divRef.current?.focus()}
@@ -104,7 +104,7 @@ const TextInput = ({ ref, value, handleExitEdit }: TextInputProps) => {
   return (
     <textarea
       ref={ref}
-      className="w-full h-full bg-white resize-none nodrag nowheel"
+      className="w-full h-full bg-white resize-none nodrag nowheel outline-none"
       onBlur={handleExitEdit}
       defaultValue={value}
     />

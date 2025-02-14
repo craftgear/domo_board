@@ -5,3 +5,5 @@ export const nodeTypes = {
 };
 
 export const edgeTypes = {};
+
+export type CustomNodeTypes = typeof EventNode;
