@@ -57,6 +57,7 @@ export const useFlow = (
           },
         },
       ]);
+      // FIXME: is there any way to subscribe to store changes?
       setTimeout(() => addSelectedNodes([newNodeId]), 0);
     },
     [updateNodeContent, setNodes, addSelectedNodes],

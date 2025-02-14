@@ -33,8 +33,9 @@ export const useHotkeys = (
           selectedNode?.data.tabIndex + 1,
         );
       }
+      // FIXME: is there any way to subscribe to store changes?
       setTimeout(() => fitView({ padding: 0.1, duration: 100 }), 0);
     },
-    [addNewNode, isNodeinEditing, fitView, selectedNode, nodes],
+    [addNewNode, isNodeinEditing, fitView, selectedNode],
   );
 };
