@@ -1,9 +1,8 @@
 import type { KeyboardEventHandler } from "react";
+import type { CustomNodeTypes } from "@components/NodeTypes";
 
 import { useCallback } from "react";
-import { useReactFlow, useStoreApi } from "@xyflow/react";
 import type { Node } from "@xyflow/react";
-import type { CustomNodeTypes } from "@/components/Types";
 
 export const useHotkeys = (
   addNewNode: (
@@ -15,27 +14,27 @@ export const useHotkeys = (
   ) => void,
   isNodeinEditing: boolean,
   nodes: Node[],
+  //edges: Edge[],
 ): KeyboardEventHandler<HTMLDivElement> => {
-  const { fitView } = useReactFlow();
-  const selectedNode = nodes.filter((x) => x.selected)[0];
+  const selectedNode =
+    nodes.filter((x) => x.selected)[0] ?? nodes[nodes.length - 1];
+
   return useCallback(
     (e) => {
+      // console.log("useHotkeys ----- e", e);
       if (isNodeinEditing) {
         return;
       }
-      console.log("useHotkeys----- e", e);
       if (e.code === "KeyE") {
         addNewNode(
           "EventNode",
           "",
           (selectedNode?.position.x ?? 0) + 150,
           selectedNode?.position.y ?? 0,
-          selectedNode?.data.tabIndex + 1,
+          (selectedNode as unknown as CustomNodeTypes)?.data.tabIndex + 1,
         );
       }
-      // FIXME: is there any way to subscribe to store changes?
-      setTimeout(() => fitView({ padding: 0.1, duration: 100 }), 0);
     },
-    [addNewNode, isNodeinEditing, fitView, selectedNode],
+    [addNewNode, isNodeinEditing, selectedNode],
   );
 };

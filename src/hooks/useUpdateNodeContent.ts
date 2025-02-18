@@ -6,7 +6,10 @@ export const useUpdateNodeContent = (
 ) =>
   useCallback(
     (id: string, newContent: string) => {
-      updateNode(id, (data) => ({ ...data, content: newContent }));
+      updateNode(id, (data) => ({
+        ...data,
+        content: newContent,
+      }));
     },
     [updateNode],
   );

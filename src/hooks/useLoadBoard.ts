@@ -1,53 +1,56 @@
-import { type } from "arktype";
 import { Node, Edge } from "@xyflow/react";
 import { ulid } from "ulid";
-
-const flow = type({ id: "string#flowId", title: "string" });
-type Flow = typeof flow.infer & {
-  nodes: Node[];
-  edges: Edge[];
-};
-type FlowId = Flow["id"];
+import { useNodesAndEdges } from "@/store";
+import { type BoardId, type Board, type ProjectId, BIG_PICTURE } from "@/types";
 
 const initialNodes: Node[] = [
   {
     id: ulid(),
     position: { x: 0, y: 225 },
     data: {
-      content: "Todo一覧を表示したああああああああああああああああ",
+      content: "1",
     },
     type: "EventNode",
   },
   {
     id: ulid(),
     position: { x: 250, y: 150 },
-    data: { content: "Todoを完了にした" },
+    data: { content: "2" },
     type: "EventNode",
   },
   {
     id: ulid(),
     position: { x: 250, y: 300 },
-    data: { content: "Todoを新規作成した" },
-
+    data: { content: "3" },
     type: "EventNode",
   },
 ];
 
 const initialEdges: Edge[] = [];
 
-export const useLoadFlow = (id: string): Flow => {
+export const useLoadBoard = (id: string): Board => {
   if (id === "1") {
     return {
-      id: "1" as FlowId,
+      id: "1" as BoardId,
+      projectId: "1" as ProjectId,
       title: "flow 1",
       nodes: initialNodes,
       edges: initialEdges,
+      previousBoardId: null,
+      nextBoardId: null,
+      mode: BIG_PICTURE,
+      nodeIdInEditing: null,
     };
   }
   return {
-    id: "2" as FlowId,
+    id: "2" as BoardId,
+    projectId: "1" as ProjectId,
     title: "flow 2",
     nodes: [],
     edges: [],
+    previousBoardId: null,
+    nextBoardId: null,
+    mode: BIG_PICTURE,
+    nodeIdInEditing: null,
   };
 };

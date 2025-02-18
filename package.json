@@ -14,7 +14,6 @@
     "@tanstack/react-store": "^0.7.0",
     "@types/node": "^22.13.0",
     "@xyflow/react": "^12.4.2",
-    "arktype": "^2.0.4",
     "classnames": "^2.5.1",
     "prettier": "^3.4.2",
     "react": "^19.0.0",

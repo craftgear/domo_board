@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import type { Ref } from "react";
 import { ulid } from "ulid";
 import { useUpdateNodeContent } from "./useUpdateNodeContent";
@@ -20,32 +20,21 @@ import type { Node, Edge, Connection, GeneralHelpers } from "@xyflow/react";
 
 import { useNodeIdInEditing } from "@/store";
 
-export const useFlow = (
-  initialNodes: Node[],
-  initialEdges: Edge[],
-  reactFlowWrapper: Ref<HTMLDivElement>,
-) => {
-  const {
-    setNodes,
-    updateNodeData,
-    setEdges,
-    screenToFlowPosition,
-    getIntersectingNodes,
-  } = useReactFlow();
-
-  const updateNodeContent = useUpdateNodeContent(updateNodeData);
-  const [nodeIdInEditing] = useNodeIdInEditing();
-
-  const store = useStoreApi();
-  const { addSelectedNodes } = store.getState();
-  const addNewNode = useCallback(
+const useAddNewNode = (
+  updateNodeContent,
+  setNodes,
+  addSelectedNodes,
+  fitView,
+) =>
+  useCallback(
     (type: string, content: string, x: number, y: number, tabIndex: number) => {
       const newNodeId = ulid();
-      setNodes((nodes) => [
+      setNodes((nodes: Node[]) => [
         ...nodes,
         {
           id: newNodeId,
           type,
+          selected: true,
           position: {
             x,
             y,
@@ -57,11 +46,36 @@ export const useFlow = (
           },
         },
       ]);
+
       // FIXME: is there any way to subscribe to store changes?
-      setTimeout(() => addSelectedNodes([newNodeId]), 0);
+      setTimeout(() => {
+        addSelectedNodes([newNodeId]);
+        fitView({ padding: 0.1, duration: 100 });
+      }, 0);
+      return newNodeId;
     },
-    [updateNodeContent, setNodes, addSelectedNodes],
+    [updateNodeContent, setNodes, addSelectedNodes, fitView],
   );
+export const useFlow = (
+  initialNodes: Node[],
+  initialEdges: Edge[],
+  reactFlowWrapper: Ref<HTMLDivElement>,
+) => {
+  console.log("----- initialNodes", initialNodes);
+  const {
+    setNodes,
+    setEdges,
+    updateNodeData,
+    screenToFlowPosition,
+    getIntersectingNodes,
+    fitView,
+  } = useReactFlow();
+
+  const updateNodeContent = useUpdateNodeContent(updateNodeData);
+  const [nodeIdInEditing] = useNodeIdInEditing();
+
+  const store = useStoreApi();
+  const { addSelectedNodes } = store.getState();
 
   const [nodes, _setNodes, onNodesChange] = useNodesState(
     initialNodes.map((node, index) => ({
@@ -71,6 +85,17 @@ export const useFlow = (
   );
   const [edges, _setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  useEffect(() => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [setNodes, setEdges, initialNodes, initialEdges]);
+
+  const addNewNode = useAddNewNode(
+    updateNodeContent,
+    setNodes,
+    addSelectedNodes,
+    fitView,
+  );
   const hotkeys = useHotkeys(addNewNode, !!nodeIdInEditing, nodes);
 
   const onConnect = useCallback(

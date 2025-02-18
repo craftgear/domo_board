@@ -8,12 +8,16 @@ import {
 } from "@xyflow/react";
 
 import { useFlow } from "@/hooks/useFlow";
-import { useLoadFlow } from "@/hooks/useLoadFlow";
-import { nodeTypes, edgeTypes } from "@/components/Types";
+import { useLoadBoard } from "@/hooks/useLoadBoard";
+import { useBoard } from "@/store";
+import { nodeTypes, edgeTypes } from "@/components/NodeTypes";
 import { Logo } from "@/components/Logo";
 
 function App() {
-  const { nodes: initialNodes, edges: initialEdges } = useLoadFlow("1");
+  const boardData = useLoadBoard("1");
+  const [board, setBoard] = useBoard();
+  setBoard(boardData);
+  console.log("----- board", board);
 
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
 
@@ -29,11 +33,12 @@ function App() {
     onConnect,
     onNodesDelete,
     onKeyDown,
-  } = useFlow(initialNodes, initialEdges, reactFlowWrapper);
+  } = useFlow(board.nodes, board.edges, reactFlowWrapper);
 
   return (
     <div
       className="size-full "
+      id="flow-wrapper"
       ref={reactFlowWrapper}
       tabIndex={0}
       onKeyDown={onKeyDown}
