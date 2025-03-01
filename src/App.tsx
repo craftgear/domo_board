@@ -9,21 +9,20 @@ import {
 
 import { useFlow } from "@/hooks/useFlow";
 import { useLoadBoard } from "@/hooks/useLoadBoard";
-import { useBoard } from "@/store";
+import { useBoard } from "@/state";
 import { nodeTypes, edgeTypes } from "@/components/NodeTypes";
 import { Logo } from "@/components/Logo";
 
 function App() {
   const boardData = useLoadBoard("1");
   const [board, setBoard] = useBoard();
-  setBoard(boardData);
-  console.log("----- board", board);
 
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    setBoard(boardData);
     reactFlowWrapper.current?.focus();
-  }, []);
+  }, [setBoard, boardData]);
 
   const {
     nodes,
@@ -55,6 +54,7 @@ function App() {
         snapToGrid={false}
         colorMode="light"
         fitView
+        minZoom={0.05}
       >
         <Logo />
         <Controls />

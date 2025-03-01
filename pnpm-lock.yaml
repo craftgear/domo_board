@@ -23,6 +23,9 @@ importers:
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
+      elkjs:
+        specifier: ^0.9.3
+        version: 0.9.3
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -803,6 +806,9 @@ packages:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
     engines: {node: '>=0.10'}
     hasBin: true
+
+  elkjs@0.9.3:
+    resolution: {integrity: sha512-f/ZeWvW/BCXbhGEf1Ujp29EASo/lk1FDnETgNKwJrsVvGZhUWCZyg3xLJjAsxfOmt8KjswHmI5EwCQcPMpOYhQ==}
 
   enhanced-resolve@5.18.0:
     resolution: {integrity: sha512-0/r0MySGYG8YqlayBZ6MuCfECmHFdJ5qyPh8s8wa5Hnm6SaFLSK1VYCbj+NKp090Nm1caZhD+QTnmxO7esYGyQ==}
@@ -2072,6 +2078,8 @@ snapshots:
   deep-is@0.1.4: {}
 
   detect-libc@1.0.3: {}
+
+  elkjs@0.9.3: {}
 
   enhanced-resolve@5.18.0:
     dependencies:

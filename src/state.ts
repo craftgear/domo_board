@@ -1,10 +1,9 @@
-import type { Node, Edge } from "@xyflow/react";
 import { Store, useStore } from "@tanstack/react-store";
 
 import type { Board } from "@/types";
 import { BIG_PICTURE, DESIGN_LEVEL } from "@/types";
 
-const BoardState = new Store<Board>({
+const BoardStore = new Store<Board>({
   projectId: null,
   id: null,
   title: "",
@@ -17,24 +16,30 @@ const BoardState = new Store<Board>({
 });
 
 const setNodeIdInEditing = (nodeId: string | null) => {
-  BoardState.setState((state) => ({
+  BoardStore.setState((state) => ({
     ...state,
     nodeIdInEditing: nodeId,
   }));
 };
+
 export const useNodeIdInEditing = (): [
   string | null,
   typeof setNodeIdInEditing,
 ] => [
-  useStore(BoardState, (state) => state["nodeIdInEditing"]),
+  useStore(BoardStore, (state) => {
+    return state["nodeIdInEditing"];
+  }),
   setNodeIdInEditing,
 ];
 
 const setBoard = (board: Board) => {
-  BoardState.setState(() => board);
+  BoardStore.setState((prev) => ({
+    ...prev,
+    ...board,
+  }));
 };
 
 export const useBoard = (): [board: Board, typeof setBoard] => [
-  useStore(BoardState, (state) => state),
+  useStore(BoardStore, (state) => state),
   setBoard,
 ];

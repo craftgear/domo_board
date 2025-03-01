@@ -1,6 +1,5 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useLayoutEffect, useEffect } from "react";
 import type { Ref } from "react";
-import { ulid } from "ulid";
 import { useUpdateNodeContent } from "./useUpdateNodeContent";
 import { useHotkeys } from "./useHotkeys";
 
@@ -16,52 +15,50 @@ import {
   // reconnectEdge,
   useStoreApi,
 } from "@xyflow/react";
-import type { Node, Edge, Connection, GeneralHelpers } from "@xyflow/react";
+import type {
+  Node,
+  Edge,
+  Connection,
+  GeneralHelpers,
+  FitView,
+} from "@xyflow/react";
 
-import { useNodeIdInEditing } from "@/store";
+import { useNodeIdInEditing } from "@/state";
+import { useAddNewNode } from "./useAddNewNode";
+import type { CustomNodeTypes, CustomNodeProps } from "@/components/NodeTypes";
 
-const useAddNewNode = (
-  updateNodeContent,
-  setNodes,
-  addSelectedNodes,
-  fitView,
-) =>
-  useCallback(
-    (type: string, content: string, x: number, y: number, tabIndex: number) => {
-      const newNodeId = ulid();
-      setNodes((nodes: Node[]) => [
-        ...nodes,
-        {
-          id: newNodeId,
-          type,
-          selected: true,
-          position: {
-            x,
-            y,
-          },
-          data: {
-            content,
-            updateNodeContent,
-            tabIndex,
-          },
-        },
-      ]);
-
-      // FIXME: is there any way to subscribe to store changes?
-      setTimeout(() => {
-        addSelectedNodes([newNodeId]);
-        fitView({ padding: 0.1, duration: 100 });
-      }, 0);
-      return newNodeId;
+export const createNode = (
+  newNodeId: string,
+  nodeType: CustomNodeTypes,
+  x: number,
+  y: number,
+  data: CustomNodeProps["data"],
+) => {
+  return {
+    id: newNodeId,
+    type: nodeType,
+    selected: true,
+    position: {
+      x,
+      y,
     },
-    [updateNodeContent, setNodes, addSelectedNodes, fitView],
-  );
+    data,
+  };
+};
+
+export const createEdge = (sourceNode: Node, targetNode: Node): Edge => {
+  return {
+    id: `edge-${sourceNode.id}-${targetNode.id}`,
+    source: sourceNode.id,
+    target: targetNode.id,
+  };
+};
+
 export const useFlow = (
   initialNodes: Node[],
   initialEdges: Edge[],
   reactFlowWrapper: Ref<HTMLDivElement>,
 ) => {
-  console.log("----- initialNodes", initialNodes);
   const {
     setNodes,
     setEdges,
@@ -70,6 +67,7 @@ export const useFlow = (
     getIntersectingNodes,
     fitView,
   } = useReactFlow();
+  // console.log("useFlow ----- fitView", fitView);
 
   const updateNodeContent = useUpdateNodeContent(updateNodeData);
   const [nodeIdInEditing] = useNodeIdInEditing();
@@ -77,22 +75,23 @@ export const useFlow = (
   const store = useStoreApi();
   const { addSelectedNodes } = store.getState();
 
-  const [nodes, _setNodes, onNodesChange] = useNodesState(
-    initialNodes.map((node, index) => ({
-      ...node,
-      data: { ...node.data, updateNodeContent, tabIndex: index + 1 },
-    })),
-  );
-  const [edges, _setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, _setNodes, onNodesChange] = useNodesState([] as Node[]);
+  const [edges, _setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
 
-  useEffect(() => {
-    setNodes(initialNodes);
+  useLayoutEffect(() => {
+    setNodes(
+      initialNodes.map((node, index) => ({
+        ...node,
+        data: { ...node.data, updateNodeContent, tabIndex: index + 1 },
+      })),
+    );
     setEdges(initialEdges);
-  }, [setNodes, setEdges, initialNodes, initialEdges]);
+  }, [setNodes, setEdges, initialNodes, initialEdges, updateNodeContent]);
 
   const addNewNode = useAddNewNode(
     updateNodeContent,
     setNodes,
+    setEdges,
     addSelectedNodes,
     fitView,
   );
@@ -112,23 +111,22 @@ export const useFlow = (
 
   const onNodesDelete = useCallback(
     (deleted: Node[]) => {
+      // 自動で前後のノードをつなぐ
       const newEdges = deleted.reduce((acc, node) => {
         const incomers = getIncomers(node, nodes, edges);
         const outgoers = getOutgoers(node, nodes, edges);
         const connectedEdges = getConnectedEdges([node], edges);
 
-        const remainingEdges = acc.filter((edge) => {
+        const remainingEdges = acc.filter((edge: Edge) => {
           return !connectedEdges.includes(edge);
         });
 
         const createdEdges =
           outgoers.length > 0 && incomers.length > 0
-            ? incomers.flatMap(({ id: source }) => {
-                return outgoers.map(({ id: target }) => ({
-                  id: `${source}-${target}`,
-                  source,
-                  target,
-                }));
+            ? incomers.flatMap((sourceNode) => {
+                return outgoers.map((targetNode) =>
+                  createEdge(sourceNode, targetNode),
+                );
               })
             : [];
 

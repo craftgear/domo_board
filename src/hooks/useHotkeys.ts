@@ -1,16 +1,17 @@
 import type { KeyboardEventHandler } from "react";
-import type { CustomNodeTypes } from "@components/NodeTypes";
+import type { CustomNodeProps, CustomNodeTypes } from "@components/NodeTypes";
 
 import { useCallback } from "react";
 import type { Node } from "@xyflow/react";
 
 export const useHotkeys = (
   addNewNode: (
-    type: string,
+    nodeType: CustomNodeTypes,
     content: string,
     x: number,
     y: number,
     tabIndex: number,
+    prevNode?: Node,
   ) => void,
   isNodeinEditing: boolean,
   nodes: Node[],
@@ -21,17 +22,26 @@ export const useHotkeys = (
 
   return useCallback(
     (e) => {
-      // console.log("useHotkeys ----- e", e);
       if (isNodeinEditing) {
         return;
       }
       if (e.code === "KeyE") {
         addNewNode(
           "EventNode",
-          "",
+          "event",
           (selectedNode?.position.x ?? 0) + 150,
           selectedNode?.position.y ?? 0,
-          (selectedNode as unknown as CustomNodeTypes)?.data.tabIndex + 1,
+          (selectedNode as unknown as CustomNodeProps)?.data.tabIndex + 1,
+          selectedNode,
+        );
+      }
+      if (e.code === "KeyH") {
+        addNewNode(
+          "HotspotNode",
+          "hotspot",
+          (selectedNode?.position.x ?? 0) + 150,
+          selectedNode?.position.y ?? 0,
+          (selectedNode as unknown as CustomNodeProps)?.data.tabIndex + 1,
         );
       }
     },
