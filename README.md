@@ -1,4 +1,6 @@
 # domo board
 
-TBD
+**do**main **mo**deling Board
+
+WIP
 
