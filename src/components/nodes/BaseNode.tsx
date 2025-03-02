@@ -20,6 +20,7 @@ type Props = {
 } & BaseNodeProps;
 
 export const NODE_SIZE = 130;
+export const NODE_GAP = 20;
 const sizeClasses = `w-[130px] h-[130px]`;
 
 export const BaseNode = ({

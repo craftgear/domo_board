@@ -5,9 +5,13 @@ import type {
   ReactFlowActions,
   Node,
   Edge,
+  FitView,
 } from "@xyflow/react";
+
+import type { CustomNodeTypes } from "@/components/nodes";
+import { NODE_SIZE, NODE_GAP } from "@/components/nodes";
+
 import type { UpdateNodeContent } from "./useUpdateNodeContent";
-import type { CustomNodeTypes } from "@components/nodes";
 import { createNode, createEdge } from "./useFlow";
 
 export type addNewNodeFn = (
@@ -19,46 +23,47 @@ export type addNewNodeFn = (
   prevNode?: Node,
 ) => Node;
 
-const calcNewNodePosition = (x: number, y: number, nodes: Node[]) => {
-  const NODE_SIZE = 130; // Assuming nodes are 96x96 pixels (w-24, h-24 in Tailwind)
-  const PADDING = 20; // Additional padding between nodes
+const calcNewNodePosition = (
+  parentX: number,
+  parentY: number,
+  nodes: Node[],
+) => {
+  const nodesToCheck = nodes.filter((node) => node.position.x > parentX);
 
-  // Check if a position is available (doesn't overlap with existing nodes)
-  const isPositionAvailable = (newX: number, newY: number) => {
-    return nodes.every((node) => {
-      const { x, y } = node.position;
-      const width = node.measured?.width ?? NODE_SIZE;
-      const height = node.measured?.height ?? NODE_SIZE;
-
-      console.log("----- newX, newY", newX, newY);
-      console.log("----- var", x, width, PADDING, y, height, PADDING);
-      return newX > x + width || newY > y + height;
+  const isPositionAvailable = (newY: number) => {
+    return nodesToCheck.every((node) => {
+      return (
+        newY > node.position.y + (node.measured?.height || 0) ||
+        newY < node.position.y
+      );
     });
   };
 
-  // Try positions in a spiral pattern around the parent node
-  let radius = 1;
-  const vectors: [number, number][] = [
-    [1, 0],
-    [1, 1],
-    [1, -1],
-  ];
-  while (radius < 10) {
-    // Limit the search radius to avoid infinite loops
-    for (const vec of vectors) {
-      const [vx, vy] = vec;
-      const newX = x + vx * radius * (NODE_SIZE + PADDING);
-      const newY = y + vy * radius * (NODE_SIZE + PADDING);
-
-      if (isPositionAvailable(newX, newY)) {
-        return { x: newX, y: newY };
+  const repeat = 5;
+  for (let moveX = 1; moveX < repeat; moveX++) {
+    for (let moveY = 0; moveY < repeat; moveY++) {
+      const lowerPosition = {
+        x: parentX + moveX * (NODE_SIZE + NODE_GAP),
+        y: parentY + moveY * (NODE_SIZE + NODE_GAP),
+      };
+      const upperPosition = {
+        x: parentX + moveX * (NODE_SIZE + NODE_GAP),
+        y: parentY - moveY * (NODE_SIZE + NODE_GAP),
+      };
+      if (isPositionAvailable(lowerPosition.y)) {
+        return lowerPosition;
+      }
+      if (isPositionAvailable(upperPosition.y)) {
+        return upperPosition;
       }
     }
-    radius++;
   }
 
-  // If no position is found, return a default position
-  return { x: x + NODE_SIZE + PADDING, y: y + NODE_SIZE + PADDING };
+  // 5x5のマスに場所がなければランダムに配置
+  return {
+    x: parentX + (NODE_SIZE + NODE_GAP) * Math.random() * 10,
+    y: parentY + (NODE_SIZE + NODE_GAP) * Math.random() * 10,
+  };
 };
 
 export const useAddNewNode = (
@@ -67,7 +72,7 @@ export const useAddNewNode = (
   setNodes: GeneralHelpers["setNodes"],
   setEdges: GeneralHelpers["setEdges"],
   addSelectedNodes: ReactFlowActions<Node, Edge>["addSelectedNodes"],
-  getIntersectionNodes: GeneralHelpers["getIntersectingNodes"],
+  fitView: FitView,
 ) => {
   return useCallback(
     (
@@ -100,7 +105,7 @@ export const useAddNewNode = (
       setTimeout(() => {
         addSelectedNodes([newNodeId]);
         // TODO: change to setCenter
-        // fitView({ padding: 0.1, duration: 100 });
+        fitView({ padding: 0.1, duration: 0 });
       }, 0);
       return newNode;
     },

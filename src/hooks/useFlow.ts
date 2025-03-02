@@ -20,7 +20,7 @@ import type {
   Edge,
   Connection,
   // GeneralHelpers,
-  // FitView,
+  FitView,
 } from "@xyflow/react";
 
 import { useNodeIdInEditing } from "@/state";
@@ -91,7 +91,7 @@ export const useFlow = (
     setNodes,
     setEdges,
     addSelectedNodes,
-    getIntersectingNodes,
+    fitView,
   );
   const hotkeys = useHotkeys(addNewNode, !!nodeIdInEditing, nodes);
 
