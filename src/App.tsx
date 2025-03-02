@@ -10,19 +10,19 @@ import {
 import { useFlow } from "@/hooks/useFlow";
 import { useLoadBoard } from "@/hooks/useLoadBoard";
 import { useBoard } from "@/state";
-import { nodeTypes, edgeTypes } from "@/components/NodeTypes";
+import { nodeTypes, edgeTypes } from "@/components/nodes";
 import { Logo } from "@/components/Logo";
 
 function App() {
   const boardData = useLoadBoard("1");
   const [board, setBoard] = useBoard();
 
-  const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
-
   useEffect(() => {
     setBoard(boardData);
     reactFlowWrapper.current?.focus();
   }, [setBoard, boardData]);
+
+  const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
 
   const {
     nodes,
@@ -36,7 +36,7 @@ function App() {
 
   return (
     <div
-      className="size-full "
+      className="h-svh w-svw"
       id="flow-wrapper"
       ref={reactFlowWrapper}
       tabIndex={0}

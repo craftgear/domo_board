@@ -1,5 +1,5 @@
-import { useCallback, useLayoutEffect, useEffect } from "react";
-import type { Ref } from "react";
+import { useCallback, useLayoutEffect } from "react";
+// import type { Ref } from "react";
 import { useUpdateNodeContent } from "./useUpdateNodeContent";
 import { useHotkeys } from "./useHotkeys";
 
@@ -19,13 +19,14 @@ import type {
   Node,
   Edge,
   Connection,
-  GeneralHelpers,
-  FitView,
+  // GeneralHelpers,
+  // FitView,
 } from "@xyflow/react";
 
 import { useNodeIdInEditing } from "@/state";
 import { useAddNewNode } from "./useAddNewNode";
-import type { CustomNodeTypes, CustomNodeProps } from "@/components/NodeTypes";
+import type { CustomNodeTypes, CustomNodeProps } from "@/components/nodes";
+import { NODE_SIZE } from "@/components/nodes/BaseNode";
 
 export const createNode = (
   newNodeId: string,
@@ -42,6 +43,11 @@ export const createNode = (
       x,
       y,
     },
+    // XXX: このプロパティがないとgetIntersectingNodesですべてのノードが返ってきてしまうので必須。
+    measured: {
+      width: NODE_SIZE,
+      height: NODE_SIZE,
+    },
     data,
   };
 };
@@ -57,17 +63,18 @@ export const createEdge = (sourceNode: Node, targetNode: Node): Edge => {
 export const useFlow = (
   initialNodes: Node[],
   initialEdges: Edge[],
-  reactFlowWrapper: Ref<HTMLDivElement>,
+  // reactFlowWrapper: Ref<HTMLDivElement>,
 ) => {
   const {
     setNodes,
     setEdges,
+    // getNodes,
     updateNodeData,
     screenToFlowPosition,
     getIntersectingNodes,
     fitView,
+    // isNodeIntersecting,
   } = useReactFlow();
-  // console.log("useFlow ----- fitView", fitView);
 
   const updateNodeContent = useUpdateNodeContent(updateNodeData);
   const [nodeIdInEditing] = useNodeIdInEditing();
@@ -78,22 +85,13 @@ export const useFlow = (
   const [nodes, _setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, _setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
 
-  useLayoutEffect(() => {
-    setNodes(
-      initialNodes.map((node, index) => ({
-        ...node,
-        data: { ...node.data, updateNodeContent, tabIndex: index + 1 },
-      })),
-    );
-    setEdges(initialEdges);
-  }, [setNodes, setEdges, initialNodes, initialEdges, updateNodeContent]);
-
   const addNewNode = useAddNewNode(
+    nodes,
     updateNodeContent,
     setNodes,
     setEdges,
     addSelectedNodes,
-    fitView,
+    getIntersectingNodes,
   );
   const hotkeys = useHotkeys(addNewNode, !!nodeIdInEditing, nodes);
 
@@ -137,6 +135,26 @@ export const useFlow = (
     },
     [setEdges, nodes, edges],
   );
+
+  useLayoutEffect(() => {
+    setNodes(
+      initialNodes.map((node, index) => ({
+        ...node,
+        data: { ...node.data, updateNodeContent, tabIndex: index + 1 },
+      })),
+    );
+    setEdges(initialEdges);
+    setTimeout(() => {
+      fitView();
+    }, 0);
+  }, [
+    setNodes,
+    setEdges,
+    initialNodes,
+    initialEdges,
+    updateNodeContent,
+    fitView,
+  ]);
 
   return {
     /** flow **/

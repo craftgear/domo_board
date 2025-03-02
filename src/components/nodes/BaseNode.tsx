@@ -19,13 +19,16 @@ type Props = {
   hasHandles?: boolean;
 } & BaseNodeProps;
 
-export const EventStormingNode = ({
+export const NODE_SIZE = 130;
+const sizeClasses = `w-[130px] h-[130px]`;
+
+export const BaseNode = ({
   id,
   selected,
   activeColor,
   inactiveColor,
   rotate = "",
-  size = "w-24 h-24",
+  size = sizeClasses,
   hasHandles = true,
   data: { content, updateNodeContent, tabIndex },
   // ...rest
