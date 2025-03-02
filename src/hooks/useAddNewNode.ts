@@ -28,19 +28,19 @@ const calcNewNodePosition = (
   parentY: number,
   nodes: Node[],
 ) => {
-  const nodesToCheck = nodes.filter((node) => node.position.x > parentX);
-
-  const isPositionAvailable = (newY: number) => {
-    return nodesToCheck.every((node) => {
-      return (
+  const isPositionAvailable = (newY: number, nodesToCheck: Node[]) => {
+    return nodesToCheck.every(
+      (node) =>
         newY > node.position.y + (node.measured?.height || 0) ||
-        newY < node.position.y
-      );
-    });
+        newY < node.position.y,
+    );
   };
 
   const repeat = 5;
   for (let moveX = 1; moveX < repeat; moveX++) {
+    const nodesToCheck = nodes.filter(
+      (node) => node.position.x > (parentX + NODE_GAP) * moveX,
+    );
     for (let moveY = 0; moveY < repeat; moveY++) {
       const lowerPosition = {
         x: parentX + moveX * (NODE_SIZE + NODE_GAP),
@@ -50,10 +50,10 @@ const calcNewNodePosition = (
         x: parentX + moveX * (NODE_SIZE + NODE_GAP),
         y: parentY - moveY * (NODE_SIZE + NODE_GAP),
       };
-      if (isPositionAvailable(lowerPosition.y)) {
+      if (isPositionAvailable(lowerPosition.y, nodesToCheck)) {
         return lowerPosition;
       }
-      if (isPositionAvailable(upperPosition.y)) {
+      if (isPositionAvailable(upperPosition.y, nodesToCheck)) {
         return upperPosition;
       }
     }
@@ -85,9 +85,7 @@ export const useAddNewNode = (
     ): Node => {
       const newNodeId = ulid();
       //
-      console.log("----- nodes", nodes);
       const { x, y } = calcNewNodePosition(parentX ?? 0, parentY ?? 0, nodes);
-      console.log("----- x, y", x, y);
       const newNode = createNode(newNodeId, nodeType, x, y, {
         content,
         updateNodeContent,
@@ -109,6 +107,6 @@ export const useAddNewNode = (
       }, 0);
       return newNode;
     },
-    [updateNodeContent, setNodes, addSelectedNodes, setEdges, nodes],
+    [updateNodeContent, setNodes, addSelectedNodes, setEdges, nodes, fitView],
   );
 };
