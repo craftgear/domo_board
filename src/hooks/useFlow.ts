@@ -1,8 +1,6 @@
 import { useCallback, useLayoutEffect } from "react";
 // import type { Ref } from "react";
-import { useUpdateNodeContent } from "./useUpdateNodeContent";
-import { useHotkeys } from "./useHotkeys";
-
+import { ulid } from "ulid";
 import {
   useNodesState,
   useEdgesState,
@@ -15,6 +13,10 @@ import {
   // reconnectEdge,
   useStoreApi,
 } from "@xyflow/react";
+
+import { useUpdateNodeContent } from "./useUpdateNodeContent";
+import { useHotkeys } from "./useHotkeys";
+
 import type {
   Node,
   Edge,
@@ -29,12 +31,12 @@ import type { CustomNodeTypes, CustomNodeProps } from "@/components/nodes";
 import { NODE_SIZE } from "@/components/nodes/BaseNode";
 
 export const createNode = (
-  newNodeId: string,
   nodeType: CustomNodeTypes,
   x: number,
   y: number,
   data: CustomNodeProps["data"],
 ) => {
+  const newNodeId = ulid();
   return {
     id: newNodeId,
     type: nodeType,

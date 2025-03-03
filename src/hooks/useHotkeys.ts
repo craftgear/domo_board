@@ -36,6 +36,7 @@ export const useHotkeys = (
           selectedNode?.position.x,
           selectedNode?.position.y,
           (selectedNode as unknown as CustomNodeProps)?.data.tabIndex + 1,
+          selectedNode,
         );
       }
     },

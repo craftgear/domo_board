@@ -14,7 +14,7 @@ const initialNodes: Node[] = [
   },
   {
     id: ulid(),
-    position: { x: 250, y: 150 },
+    position: { x: 250, y: 100 },
     data: { content: "2" },
     type: "EventNode",
   },

@@ -32,7 +32,7 @@ function App() {
     onConnect,
     onNodesDelete,
     onKeyDown,
-  } = useFlow(board.nodes, board.edges, reactFlowWrapper);
+  } = useFlow(board.nodes, board.edges);
 
   return (
     <div

@@ -29,26 +29,28 @@ const calcNewNodePosition = (
   nodes: Node[],
 ) => {
   const isPositionAvailable = (newY: number, nodesToCheck: Node[]) => {
-    return nodesToCheck.every(
-      (node) =>
+    return nodesToCheck.every((node) => {
+      return (
         newY > node.position.y + (node.measured?.height || 0) ||
-        newY < node.position.y,
-    );
+        newY + NODE_SIZE < node.position.y
+      );
+    });
   };
 
-  const repeat = 5;
-  for (let moveX = 1; moveX < repeat; moveX++) {
-    const nodesToCheck = nodes.filter(
-      (node) => node.position.x > (parentX + NODE_GAP) * moveX,
-    );
-    for (let moveY = 0; moveY < repeat; moveY++) {
+  const repeatX = 10;
+  const repeatY = 5;
+  for (let column = 1; column < repeatX; column++) {
+    const nodesToCheck = nodes.filter((node) => {
+      return node.position.x >= parentX + (NODE_SIZE + NODE_GAP) * column;
+    });
+    for (let row = 0; row < repeatY; row++) {
       const lowerPosition = {
-        x: parentX + moveX * (NODE_SIZE + NODE_GAP),
-        y: parentY + moveY * (NODE_SIZE + NODE_GAP),
+        x: parentX + column * (NODE_SIZE + NODE_GAP),
+        y: parentY + row * (NODE_SIZE + NODE_GAP),
       };
       const upperPosition = {
-        x: parentX + moveX * (NODE_SIZE + NODE_GAP),
-        y: parentY - moveY * (NODE_SIZE + NODE_GAP),
+        x: parentX + column * (NODE_SIZE + NODE_GAP),
+        y: parentY - row * (NODE_SIZE + NODE_GAP),
       };
       if (isPositionAvailable(lowerPosition.y, nodesToCheck)) {
         return lowerPosition;
@@ -61,8 +63,8 @@ const calcNewNodePosition = (
 
   // 5x5のマスに場所がなければランダムに配置
   return {
-    x: parentX + (NODE_SIZE + NODE_GAP) * Math.random() * 10,
-    y: parentY + (NODE_SIZE + NODE_GAP) * Math.random() * 10,
+    x: parentX + (NODE_SIZE + NODE_GAP) * Math.random() * repeatX,
+    y: parentY + (NODE_SIZE + NODE_GAP) * Math.random() * repeatY,
   };
 };
 
@@ -81,12 +83,12 @@ export const useAddNewNode = (
       parentX: number,
       parentY: number,
       tabIndex: number,
-      prevNode?: Node,
+      prevNode: Node,
     ): Node => {
-      const newNodeId = ulid();
-      //
       const { x, y } = calcNewNodePosition(parentX ?? 0, parentY ?? 0, nodes);
-      const newNode = createNode(newNodeId, nodeType, x, y, {
+      // TODO: createNodeをaddNewNodeから外してuseHotKeyに移す
+      // ノードタイプごとにdataプロパティに異なるデータを持たせたい
+      const newNode = createNode(nodeType, x, y, {
         content,
         updateNodeContent,
         tabIndex,
@@ -94,14 +96,14 @@ export const useAddNewNode = (
 
       setNodes((nodes) => [...nodes, newNode]);
 
-      if (prevNode) {
+      if (prevNode && nodeType !== "HotspotNode") {
         const newEdge = createEdge(prevNode, newNode);
         setEdges((edges) => [...edges, newEdge]);
       }
 
-      // XXX: do not delete setTimeout or fit view doesn't work as expected
+      // XXX: do not delete setTimeout or fitView doesn't work as expected
       setTimeout(() => {
-        addSelectedNodes([newNodeId]);
+        addSelectedNodes([newNode.id]);
         // TODO: change to setCenter
         fitView({ padding: 0.1, duration: 0 });
       }, 0);

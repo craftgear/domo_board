@@ -29,6 +29,11 @@
   --xy-theme-color-focus: #535353;
 }
 
+.react-flow__renderer {
+  width: 100svw !important;
+  height: 100svh !important;
+}
+
 /* Customizing Default Theming */
 
 /* Node styles */

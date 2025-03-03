@@ -19,9 +19,9 @@ type Props = {
   hasHandles?: boolean;
 } & BaseNodeProps;
 
-export const NODE_SIZE = 130;
-export const NODE_GAP = 20;
-const sizeClasses = `w-[130px] h-[130px]`;
+export const NODE_SIZE = 150;
+export const NODE_GAP = 100;
+const sizeClasses = `w-[150px] h-[150px]`;
 
 export const BaseNode = ({
   id,
