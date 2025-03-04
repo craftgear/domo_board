@@ -7,9 +7,18 @@ import {
 } from "react";
 import classNames from "classnames";
 import { Handle, Position } from "@xyflow/react";
+import type { NodeProps } from "@xyflow/react";
+
 import { useNodeIdInEditing } from "@/state";
 
-import type { BaseNodeProps } from "./NodeTypes";
+export type BaseNodeProps = {
+  data: {
+    content: string;
+    updateNodeContent: (nodeId: string, label: string) => void;
+    tabIndex: number;
+    parentNodeId: string;
+  };
+} & NodeProps;
 
 type Props = {
   activeColor: string;

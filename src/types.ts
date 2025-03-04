@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { Node, Edge } from "@xyflow/react";
+import { Edge } from "@xyflow/react";
 
+import type { CustomNodeProps } from "@/components/nodes";
 const ProjectIdSchema = z.string().brand("ProjceId").nullable();
 export type ProjectId = z.infer<typeof ProjectIdSchema>;
 
@@ -10,7 +11,7 @@ export type BoardId = z.infer<typeof BoardIdSchema>;
 export const BIG_PICTURE = "big picture" as const;
 export const DESIGN_LEVEL = "design level" as const;
 
-const NodesSchema = z.custom<Node[]>();
+const NodesSchema = z.custom<CustomNodeProps[]>();
 const EdgesSchame = z.custom<Edge[]>();
 const BoardSchema = z.object({
   projectId: ProjectIdSchema,

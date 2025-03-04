@@ -14,7 +14,7 @@ export const EventNode = ({ data, ...rest }: EventNodeProps) => {
       {data.isContextBorder && <div className={contextBorderClass} />}
       <BaseNode
         data={data}
-        activeColor="bg-orange-200 ring-2 ring-orange-300"
+        activeColor="bg-orange-100 ring-2 ring-orange-300"
         inactiveColor="bg-orange-300"
         {...rest}
       />

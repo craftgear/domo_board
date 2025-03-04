@@ -21,10 +21,10 @@ export const useAddNewNode = (
     (newNode: Node, prevNode?: Node): Node => {
       setNodes((nodes) => [...nodes, newNode]);
 
-      if (prevNode && newNode.type !== "HotspotNode") {
-        const newEdge = createEdge(prevNode, newNode);
-        setEdges((edges) => [...edges, newEdge]);
-      }
+      // if (prevNode && newNode.type !== "HotspotNode") {
+      //   const newEdge = createEdge(prevNode, newNode);
+      //   setEdges((edges) => [...edges, newEdge]);
+      // }
 
       // XXX: do not delete setTimeout or fitView doesn't work as expected
       setTimeout(() => {

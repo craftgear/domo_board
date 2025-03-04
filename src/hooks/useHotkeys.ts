@@ -36,6 +36,7 @@ export const useHotkeys = (
           content: "event",
           updateNodeContent,
           tabIndex: nextTabIndex,
+          parentNodeId: selectedNode.id,
         });
         addNewNode(newNode, selectedNode);
       }
@@ -44,6 +45,7 @@ export const useHotkeys = (
           content: "hotspot",
           updateNodeContent,
           tabIndex: nextTabIndex,
+          parentNodeId: selectedNode.id,
         });
         addNewNode(newNode, selectedNode);
       }
