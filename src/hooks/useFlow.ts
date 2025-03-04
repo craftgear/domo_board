@@ -13,10 +13,6 @@ import {
   // reconnectEdge,
   useStoreApi,
 } from "@xyflow/react";
-
-import { useUpdateNodeContent } from "./useUpdateNodeContent";
-import { useHotkeys } from "./useHotkeys";
-
 import type {
   Node,
   Edge,
@@ -25,10 +21,13 @@ import type {
   FitView,
 } from "@xyflow/react";
 
+import { useUpdateNodeContent } from "./useUpdateNodeContent";
+import { useHotkeys } from "./useHotkeys";
+import { NODE_SIZE, NODE_GAP } from "@/components/nodes";
+
 import { useNodeIdInEditing } from "@/state";
 import { useAddNewNode } from "./useAddNewNode";
 import type { CustomNodeTypes, CustomNodeProps } from "@/components/nodes";
-import { NODE_SIZE } from "@/components/nodes/BaseNode";
 
 export const createNode = (
   nodeType: CustomNodeTypes,
@@ -62,6 +61,51 @@ export const createEdge = (sourceNode: Node, targetNode: Node): Edge => {
   };
 };
 
+export const calcNewNodePosition = (
+  parentX: number,
+  parentY: number,
+  nodes: Node[],
+) => {
+  const isPositionAvailable = (newY: number, nodesToCheck: Node[]) => {
+    return nodesToCheck.every((node) => {
+      return (
+        newY > node.position.y + (node.measured?.height || 0) ||
+        newY + NODE_SIZE < node.position.y
+      );
+    });
+  };
+
+  const repeatX = 10;
+  const repeatY = 5;
+  for (let column = 1; column < repeatX; column++) {
+    const nodesToCheck = nodes.filter((node) => {
+      return node.position.x >= parentX + (NODE_SIZE + NODE_GAP) * column;
+    });
+    for (let row = 0; row < repeatY; row++) {
+      const lowerPosition = {
+        x: parentX + column * (NODE_SIZE + NODE_GAP),
+        y: parentY + row * (NODE_SIZE + NODE_GAP),
+      };
+      const upperPosition = {
+        x: parentX + column * (NODE_SIZE + NODE_GAP),
+        y: parentY - row * (NODE_SIZE + NODE_GAP),
+      };
+      if (isPositionAvailable(lowerPosition.y, nodesToCheck)) {
+        return lowerPosition;
+      }
+      if (isPositionAvailable(upperPosition.y, nodesToCheck)) {
+        return upperPosition;
+      }
+    }
+  }
+
+  // 5x5のマスに場所がなければランダムに配置
+  return {
+    x: parentX + (NODE_SIZE + NODE_GAP) * Math.random() * repeatX,
+    y: parentY + (NODE_SIZE + NODE_GAP) * Math.random() * repeatY,
+  };
+};
+
 export const useFlow = (
   initialNodes: Node[],
   initialEdges: Edge[],
@@ -88,14 +132,17 @@ export const useFlow = (
   const [edges, _setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
 
   const addNewNode = useAddNewNode(
-    nodes,
-    updateNodeContent,
     setNodes,
     setEdges,
     addSelectedNodes,
     fitView,
   );
-  const hotkeys = useHotkeys(addNewNode, !!nodeIdInEditing, nodes);
+  const hotkeys = useHotkeys(
+    updateNodeContent,
+    addNewNode,
+    !!nodeIdInEditing,
+    nodes,
+  );
 
   const onConnect = useCallback(
     (params: Connection) => {

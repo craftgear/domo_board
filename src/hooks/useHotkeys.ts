@@ -1,11 +1,14 @@
 import type { KeyboardEventHandler } from "react";
-import type { CustomNodeProps, CustomNodeTypes } from "@components/nodes";
-
 import { useCallback } from "react";
-import type { Node, GeneralHelpers } from "@xyflow/react";
+import type { Node } from "@xyflow/react";
+
+import type { CustomNodeProps } from "@components/nodes";
 import type { addNewNodeFn } from "./useAddNewNode";
+import { createNode, calcNewNodePosition } from "./useFlow";
+import type { UpdateNodeContent } from "./useUpdateNodeContent";
 
 export const useHotkeys = (
+  updateNodeContent: UpdateNodeContent,
   addNewNode: addNewNodeFn,
   isNodeinEditing: boolean,
   nodes: Node[],
@@ -19,27 +22,33 @@ export const useHotkeys = (
       if (isNodeinEditing) {
         return;
       }
+
+      const { x, y } = calcNewNodePosition(
+        selectedNode?.position.x ?? 0,
+        selectedNode?.position.y ?? 0,
+        nodes,
+      );
+      const nextTabIndex =
+        (selectedNode as unknown as CustomNodeProps)?.data.tabIndex + 1;
+
       if (e.code === "KeyE") {
-        addNewNode(
-          "EventNode",
-          "event",
-          selectedNode?.position.x,
-          selectedNode?.position.y,
-          (selectedNode as unknown as CustomNodeProps)?.data.tabIndex + 1,
-          selectedNode,
-        );
+        const newNode = createNode("EventNode", x, y, {
+          content: "event",
+          updateNodeContent,
+          tabIndex: nextTabIndex,
+        });
+        addNewNode(newNode, selectedNode);
       }
       if (e.code === "KeyH") {
-        addNewNode(
-          "HotspotNode",
-          "hotspot",
-          selectedNode?.position.x,
-          selectedNode?.position.y,
-          (selectedNode as unknown as CustomNodeProps)?.data.tabIndex + 1,
-          selectedNode,
-        );
+        const newNode = createNode("HotspotNode", x, y, {
+          content: "hotspot",
+          updateNodeContent,
+          tabIndex: nextTabIndex,
+        });
+        addNewNode(newNode, selectedNode);
       }
+      console.log(e);
     },
-    [addNewNode, isNodeinEditing, selectedNode],
+    [addNewNode, isNodeinEditing, selectedNode, nodes, updateNodeContent],
   );
 };

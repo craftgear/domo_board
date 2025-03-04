@@ -55,12 +55,14 @@ function App() {
         colorMode="light"
         fitView
         minZoom={0.05}
+        disableKeyboardA11y={true}
       >
         <Logo />
         <Controls />
         <MiniMap pannable zoomable />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
       </ReactFlow>
+      <div className="modal">hoge</div>
     </div>
   );
 }
