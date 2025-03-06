@@ -1,10 +1,10 @@
 import type { KeyboardEventHandler } from "react";
 import { useCallback } from "react";
-import type { Node } from "@xyflow/react";
+import type { Node, Edge } from "@xyflow/react";
 
 import type { CustomNodeProps } from "@components/nodes";
 import type { addNewNodeFn } from "./useAddNewNode";
-import { createNode, calcNewNodePosition } from "./useFlow";
+import { createNode, createEdge, calcNewNodePosition } from "./useFlow";
 import type { UpdateNodeContent } from "./useUpdateNodeContent";
 
 export const useHotkeys = (
@@ -12,7 +12,7 @@ export const useHotkeys = (
   addNewNode: addNewNodeFn,
   isNodeinEditing: boolean,
   nodes: Node[],
-  //edges: Edge[],
+  // edges: Edge[],
 ): KeyboardEventHandler<HTMLDivElement> => {
   const selectedNode =
     nodes.filter((x) => x.selected)[0] ?? nodes[nodes.length - 1];
@@ -38,7 +38,8 @@ export const useHotkeys = (
           tabIndex: nextTabIndex,
           parentNodeId: selectedNode.id,
         });
-        addNewNode(newNode, selectedNode);
+        const newEdge = createEdge(selectedNode, newNode);
+        addNewNode(newNode, selectedNode, newEdge);
       }
       if (e.code === "KeyH") {
         const newNode = createNode("HotspotNode", x, y, {
@@ -47,7 +48,8 @@ export const useHotkeys = (
           tabIndex: nextTabIndex,
           parentNodeId: selectedNode.id,
         });
-        addNewNode(newNode, selectedNode);
+        const newEdge = createEdge(selectedNode, newNode);
+        addNewNode(newNode, selectedNode, newEdge);
       }
       console.log(e);
     },

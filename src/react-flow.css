@@ -51,7 +51,6 @@
 
 /* Handle styles */
 .react-flow__handle {
-  display: none;
   width: 0.5rem;
   height: 0.5rem;
 }

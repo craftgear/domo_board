@@ -11,7 +11,7 @@ export const HotspotNode = ({ data, ...rest }: HotspotNodeProps) => {
       inactiveColor="bg-rose-400"
       rotate="rotate-315"
       size="w-26 h-26"
-      hasHandles={false}
+      hasHandles={true}
       {...rest}
     />
   );

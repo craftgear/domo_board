@@ -7,9 +7,11 @@ import type {
   FitView,
 } from "@xyflow/react";
 
-import { createEdge } from "./useFlow";
-
-export type addNewNodeFn = (newNode: Node, prevNode?: Node) => Node;
+export type addNewNodeFn = (
+  newNode: Node,
+  prevNode: Node,
+  newEdge: Edge,
+) => Node;
 
 export const useAddNewNode = (
   setNodes: GeneralHelpers["setNodes"],
@@ -18,13 +20,9 @@ export const useAddNewNode = (
   fitView: FitView,
 ) => {
   return useCallback(
-    (newNode: Node, prevNode?: Node): Node => {
+    (newNode: Node, prevNode: Node, newEdge: Edge): Node => {
       setNodes((nodes) => [...nodes, newNode]);
-
-      // if (prevNode && newNode.type !== "HotspotNode") {
-      //   const newEdge = createEdge(prevNode, newNode);
-      //   setEdges((edges) => [...edges, newEdge]);
-      // }
+      setEdges((edges) => [...edges, newEdge]);
 
       // XXX: do not delete setTimeout or fitView doesn't work as expected
       setTimeout(() => {

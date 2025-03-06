@@ -107,9 +107,16 @@ export const BaseNode = ({
     rotate,
     size,
   );
+
+  // Hotspot Node
   const childrenClasses = rotate.includes("rotate-315")
     ? "rotate-45 w-[80%] h-[80%]"
     : "h-full w-full ";
+  // TODO: left and right
+  // const handleClasses = rotate.includes("rotate-315")
+  //   ? `translate-y-[-75px] `
+  //   : "";
+  const handleClasses = "";
 
   return (
     <div
@@ -122,8 +129,16 @@ export const BaseNode = ({
     >
       {hasHandles && (
         <>
-          <Handle type="source" position={Position.Right} />
-          <Handle type="target" position={Position.Left} />
+          <Handle
+            className={handleClasses}
+            type="source"
+            position={Position.Right}
+          />
+          <Handle
+            className={handleClasses}
+            type="target"
+            position={Position.Left}
+          />
         </>
       )}
       {isEdit ? (

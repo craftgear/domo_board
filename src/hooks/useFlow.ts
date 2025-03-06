@@ -142,6 +142,7 @@ export const useFlow = (
     addNewNode,
     !!nodeIdInEditing,
     nodes,
+    edges,
   );
 
   const onConnect = useCallback(
