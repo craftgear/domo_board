@@ -9,19 +9,20 @@ const initialNodes: Node[] = [
     position: { x: 0, y: 225 },
     data: {
       content: "1",
+      hotspots: [],
     },
     type: "EventNode",
   },
   {
     id: ulid(),
     position: { x: 250, y: 100 },
-    data: { content: "2" },
+    data: { content: "2", hotspots: [] },
     type: "EventNode",
   },
   {
     id: ulid(),
     position: { x: 250, y: 300 },
-    data: { content: "3" },
+    data: { content: "3", hotspots: [] },
     type: "EventNode",
   },
 ];

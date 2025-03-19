@@ -37,6 +37,7 @@ export const useHotkeys = (
           updateNodeContent,
           tabIndex: nextTabIndex,
           parentNodeId: selectedNode.id,
+          hotspots: [],
         });
         const newEdge = createEdge(selectedNode, newNode);
         addNewNode(newNode, selectedNode, newEdge);

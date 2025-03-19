@@ -11,15 +11,16 @@ import { Handle, Position } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
 
 import { useNodeIdInEditing } from "@/state";
+import type { BaseNodeProps } from "./NodeTypes";
 
-export type BaseNodeProps = {
+export type EditableNodeProps = {
   data: {
     content: string;
     updateNodeContent: (nodeId: string, label: string) => void;
     tabIndex: number;
     parentNodeId: string;
   };
-} & NodeProps;
+} & BaseNodeProps;
 
 type Props = {
   activeColor: string;
@@ -27,15 +28,13 @@ type Props = {
   rotate?: string;
   size?: string;
   hasHandles?: boolean;
-  onMouseOver?: () => void;
-  onMouseLeave?: () => void;
-} & BaseNodeProps;
+} & EditableNodeProps;
 
 export const NODE_SIZE = 150;
 export const NODE_GAP = 100;
 const sizeClasses = `w-[150px] h-[150px]`;
 
-export const BaseNode = ({
+export const EditableNode = ({
   children,
   id,
   selected,
@@ -45,8 +44,6 @@ export const BaseNode = ({
   size = sizeClasses,
   hasHandles = true,
   data: { content, updateNodeContent, tabIndex },
-  onMouseOver,
-  onMouseLeave,
   // ...rest
 }: PropsWithChildren<Props>) => {
   const textRef = useRef<HTMLTextAreaElement | null>(null);
@@ -125,48 +122,44 @@ export const BaseNode = ({
   const handleClasses = "";
 
   return (
-    <>
-      <div
-        className={classes}
-        ref={divRef}
-        tabIndex={tabIndex || 0}
-        onDoubleClick={handleEditContent}
-        onClick={() => divRef.current?.focus()}
-        onKeyDown={handleKeyDown}
-        onMouseOver={onMouseOver}
-        onMouseLeave={onMouseLeave}
-      >
-        {hasHandles && (
-          <>
-            <Handle
-              className={handleClasses}
-              type="source"
-              position={Position.Right}
-            />
-            <Handle
-              className={handleClasses}
-              type="target"
-              position={Position.Left}
-            />
-          </>
-        )}
-        {isEdit ? (
-          <TextInput
-            value={content}
-            handleExitEdit={handleExitEdit}
-            childrenClasses={childrenClasses}
-            ref={textRef}
+    <div
+      className={classes}
+      ref={divRef}
+      tabIndex={tabIndex || 0}
+      onDoubleClick={handleEditContent}
+      onClick={() => divRef.current?.focus()}
+      onKeyDown={handleKeyDown}
+    >
+      {hasHandles && (
+        <>
+          <Handle
+            className={handleClasses}
+            type="source"
+            position={Position.Right}
           />
-        ) : (
-          <div
-            className={`overflow-hidden text-base/5 grid place-items-center ${childrenClasses}`}
-          >
-            {content}
-          </div>
-        )}
-        {!isEdit && children}
-      </div>
-    </>
+          <Handle
+            className={handleClasses}
+            type="target"
+            position={Position.Left}
+          />
+        </>
+      )}
+      {children}
+      {isEdit ? (
+        <TextInput
+          value={content}
+          handleExitEdit={handleExitEdit}
+          childrenClasses={childrenClasses}
+          ref={textRef}
+        />
+      ) : (
+        <div
+          className={`overflow-hidden text-base/5 grid place-items-center ${childrenClasses}`}
+        >
+          {content}
+        </div>
+      )}
+    </div>
   );
 };
 
